@@ -15,28 +15,27 @@ foreach ($argv as $file) {
         echo 'File ' . $file . ' not found' . PHP_EOL;
         continue;
     }
-    $md5 = md5(file_get_contents($file, false, null, 0, 10485760));
-    $checksum = checksum($md5);
-    $url = "http://napiprojekt.pl/unit_napisy/dl.php?l=$lang&f=$md5&t=$checksum&v=other&kolejka=false&nick=&pass=&napios=posix";
-    if (!download($file, $url)) {
+    if (!download($file,$lang)) {
         echo 'Subtitles for ' . $file . ' not found' . PHP_EOL;
         continue;
     }
 
 }
 
-function download($file, $url)
+function download($file,$lang)
 {
-    $compressedFile = end(explode(".", $file)) . '.7z';
-    $subtitlesFile = end(explode(".", $file)) . '.srt';
+    $md5 = md5(file_get_contents($file, false, null, 0, 10485760));
+    $checksum = checksum($md5);
+    $url = "http://napiprojekt.pl/unit_napisy/dl.php?l=$lang&f=$md5&t=$checksum&v=other&kolejka=false&nick=&pass=&napios=posix";
+    $compressedFile = reset(explode(".", $file)) . '.7z';
+    $subtitlesFile = reset(explode(".", $file)) . '.srt';
     $subs = file_get_contents($url);
     if ($subs == 'NPc0') {
         return false;
     }
     file_put_contents($compressedFile, $subs);
-    shell_exec('7z x -y piBlm8NTigvru0Jr0 "' . $compressedFile . '" >/dev/null 2>/dev/null > "' . $subtitlesFile . '"');
-    unlink($compressedFile);
-    echo 'Downloaded subtitles for ' . $file . ' not found' . PHP_EOL;
+    shell_exec('7z x -y -piBlm8NTigvru0Jr0 "' . $compressedFile . '" 2>/dev/null 1>/dev/null && mv '.$md5.'.txt "' . $subtitlesFile . '"');
+    echo 'Downloaded subtitles for ' . $file . PHP_EOL;
     return true;
 }
 
