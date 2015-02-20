@@ -1,7 +1,7 @@
 #!/usr/bin/php
 <?php
 /**
- *  @author Jakub Pas <jakubpas@gmail.com>
+ * @author Jakub Pas <jakubpas@gmail.com>
  */
 if ($argc < 2) {
     echo 'Usage: ' . $argv[0] . ' [lang] file1, file2...' . PHP_EOL;
@@ -15,14 +15,14 @@ foreach ($argv as $file) {
         echo 'File ' . $file . ' not found' . PHP_EOL;
         continue;
     }
-    if (!download($file,$lang)) {
+    if (!download($file, $lang)) {
         echo 'Subtitles for ' . $file . ' not found' . PHP_EOL;
         continue;
     }
 
 }
 
-function download($file,$lang)
+function download($file, $lang)
 {
     $md5 = md5(file_get_contents($file, false, null, 0, 10485760));
     $checksum = checksum($md5);
@@ -34,7 +34,9 @@ function download($file,$lang)
         return false;
     }
     file_put_contents($compressedFile, $subs);
-    shell_exec('7z x -y -piBlm8NTigvru0Jr0 "' . $compressedFile . '" 2>/dev/null 1>/dev/null && mv '.$md5.'.txt "' . $subtitlesFile . '"');
+    shell_exec(
+        '7z x -y -piBlm8NTigvru0Jr0 "' . $compressedFile . '" 2>/dev/null 1>/dev/null && mv ' . $md5 . '.txt "' . $subtitlesFile . '"'
+    );
     unlink($compressedFile);
     echo 'Downloaded subtitles for ' . $file . PHP_EOL;
     return true;
