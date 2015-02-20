@@ -4,22 +4,37 @@
  * @author Jakub Pas <jakubpas@gmail.com>
  */
 if ($argc < 2) {
-    echo 'Usage: ' . $argv[0] . ' [lang] file1, file2...' . PHP_EOL;
+    echo 'Usage: ' . $argv[0] . ' [lang] file1|dir1, file2|dir2...' . PHP_EOL;
     exit;
 }
 array_shift($argv);
 $lang = in_array($argv[0], ['PL', 'EN']) ? array_shift($argv) : 'PL';
 
-foreach ($argv as $file) {
-    if (!file_exists($file)) {
-        echo 'File ' . $file . ' not found' . PHP_EOL;
+foreach ($argv as $arg) {
+    if (!file_exists($arg)) {
+        echo 'File ' . $arg . ' not found' . PHP_EOL;
         continue;
     }
-    if (!download($file, $lang)) {
-        echo 'Subtitles for ' . $file . ' not found' . PHP_EOL;
-        continue;
+    if (is_dir($arg)) {
+        $files = [];
+        $fileInfos = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($arg)
+        );
+        foreach ($fileInfos as $pathname => $fileInfo) {
+            if (!in_array($fileInfo->getExtension(), ['avi', 'mp4', 'rmvb', 'mpeg4', 'mov']) || !$fileInfo->isFile()) {
+                continue;
+            }
+            $files[] = $pathname;
+        }
+    } else {
+        $files = [$arg];
     }
-
+    foreach ($files as $file) {
+        if (!download($file, $lang)) {
+            echo 'Subtitles for ' . $file . ' not found' . PHP_EOL;
+            continue;
+        }
+    }
 }
 
 function download($file, $lang)
@@ -32,6 +47,9 @@ function download($file, $lang)
     $subs = file_get_contents($url);
     if ($subs == 'NPc0') {
         return false;
+    }
+    if ($lang == 'PL') {
+        $subs = fixPolishSubs($subs);
     }
     file_put_contents($compressedFile, $subs);
     shell_exec(
@@ -58,3 +76,34 @@ function checksum($md5)
     }
     return $checksum;
 }
+
+function fixPolishSubs($subtitles)
+{
+    $replacementArray = array(
+        'ê' => 'ę',
+        '_1_' => 'ó',
+        '¹' => 'ą',
+        'œ' => 'ś',
+        '³' => 'ł',
+        '¿' => 'ż',
+        'Ÿ' => 'ź',
+        'æ' => 'ć',
+        '_2_' => 'ń',
+        'ñ' => 'ń',
+        '£' => 'Ł',
+        '_3_' => 'Ę',
+        '_4_' => 'Ó',
+        '_5_' => 'Ą',
+        'Œ' => 'Ś',
+        '_6_' => 'Ł',
+        '<8f>' => 'Ż',
+        '¯' => 'Ź',
+        'Æ' => 'Ć',
+        '_8_' => 'Ń',
+    );
+    foreach ($replacementArray as $from => $to) {
+        $subtitles = preg_replace('/' . $from . '/m', $to, $subtitles);
+    }
+    return $subtitles;
+}
+
