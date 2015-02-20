@@ -35,6 +35,7 @@ function download($file,$lang)
     }
     file_put_contents($compressedFile, $subs);
     shell_exec('7z x -y -piBlm8NTigvru0Jr0 "' . $compressedFile . '" 2>/dev/null 1>/dev/null && mv '.$md5.'.txt "' . $subtitlesFile . '"');
+    unlink($compressedFile);
     echo 'Downloaded subtitles for ' . $file . PHP_EOL;
     return true;
 }
