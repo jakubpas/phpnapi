@@ -48,14 +48,14 @@ function download($file, $lang)
     if ($subs == 'NPc0') {
         return false;
     }
-    if ($lang == 'PL') {
-        $subs = fixPolishSubs($subs);
-    }
     file_put_contents($compressedFile, $subs);
     shell_exec(
         '7z x -y -piBlm8NTigvru0Jr0 "' . $compressedFile . '" 2>/dev/null 1>/dev/null && mv ' . $md5 . '.txt "' . $subtitlesFile . '"'
     );
     unlink($compressedFile);
+    if ($lang == 'PL') {
+    	file_put_contents($file,iconv('windows-1250','UTF-8',file_get_contents($subtitlesFile)));
+    }
     echo 'Downloaded subtitles for ' . $file . PHP_EOL;
     return true;
 }
@@ -75,35 +75,5 @@ function checksum($md5)
         $checksum .= substr(dechex($v * $m), -1);
     }
     return $checksum;
-}
-
-function fixPolishSubs($subtitles)
-{
-    $replacementArray = array(
-        'ê' => 'ę',
-        '_1_' => 'ó',
-        '¹' => 'ą',
-        'œ' => 'ś',
-        '³' => 'ł',
-        '¿' => 'ż',
-        'Ÿ' => 'ź',
-        'æ' => 'ć',
-        '_2_' => 'ń',
-        'ñ' => 'ń',
-        '£' => 'Ł',
-        '_3_' => 'Ę',
-        '_4_' => 'Ó',
-        '_5_' => 'Ą',
-        'Œ' => 'Ś',
-        '_6_' => 'Ł',
-        '<8f>' => 'Ż',
-        '¯' => 'Ź',
-        'Æ' => 'Ć',
-        '_8_' => 'Ń',
-    );
-    foreach ($replacementArray as $from => $to) {
-        $subtitles = preg_replace('/' . $from . '/m', $to, $subtitles);
-    }
-    return $subtitles;
 }
 
