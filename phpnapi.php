@@ -59,7 +59,7 @@ function download($file, $lang)
     );
     unlink($compressedFile);
     if ($lang == 'PL') {
-    	file_put_contents($file,iconv('windows-1250','UTF-8',file_get_contents($subtitlesFile)));
+    	file_put_contents($subtitlesFile,iconv('windows-1250','UTF-8',file_get_contents($subtitlesFile)));
     }
     echo 'Downloaded subtitles for ' . $file . PHP_EOL;
     return true;
