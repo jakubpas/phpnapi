@@ -24,7 +24,7 @@ foreach ($argv as $arg) {
             /**
              * @var SplFileInfo $fileInfo
              */
-            if (!in_array($fileInfo->getExtension(), ['avi', 'mp4', 'rmvb', 'mpeg4', 'mov']) || !$fileInfo->isFile()) {
+            if (!in_array($fileInfo->getExtension(), ['avi', 'mp4', 'rmvb', 'mpeg4', 'mov','mkv']) || !$fileInfo->isFile()) {
                 continue;
             }
             $files[] = $pathname;
