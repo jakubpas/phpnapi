@@ -4,8 +4,7 @@
  * @author Jakub Pas <jakubpas@gmail.com>
  */
 if ($argc < 2) {
-    echo 'Usage: ' . $argv[0] . ' [lang] file1|dir1, file2|dir2...' . PHP_EOL;
-    exit;
+    die('Usage: ' . $argv[0] . ' [lang] file1|dir1, file2|dir2...' . PHP_EOL);
 }
 array_shift($argv);
 $lang = in_array($argv[0], ['PL', 'EN']) ? array_shift($argv) : 'PL';
